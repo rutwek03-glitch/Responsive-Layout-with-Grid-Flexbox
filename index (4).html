@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickBite | Online Food Ordering &amp; Restaurant Discovery</title>
+  <style>
+    /* =========================================================
+       1. CSS Custom Properties & Fluid Base Styling
+       ========================================================= */
+    :root {
+      --primary: #e23744;
+      --primary-dark: #c42733;
+      --bg-body: #f8f9fa;
+      --bg-surface: #ffffff;
+      --text-main: #1c1c1c;
+      --text-muted: #595959;
+      --border-light: #e5e7eb;
+      --radius: 0.75rem;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.12);
+      --space-fluid: clamp(1rem, 2.5vw, 2rem);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .container {
+      width: min(1200px, 92%);
+      margin-inline: auto;
+    }
+
+    /* =========================================================
+       2. Responsive Header & Navigation Bar (CSS Flexbox)
+       ========================================================= */
+    .site-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .navbar {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.85rem;
+      padding-block: 1rem;
+    }
+
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-logo {
+      font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+
+    .location-pill {
+      font-size: 0.85rem;
+      background: #fff1f2;
+      color: var(--primary-dark);
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+      padding: 0.4rem 0.65rem;
+      border-radius: 0.4rem;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus-visible {
+      background-color: #fff1f2;
+      color: var(--primary);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-cart {
+      flex: 1;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-cart:hover {
+      background-color: var(--primary-dark);
+    }
+
+    /* =========================================================
+       3. Hero & Food Categories (Flexbox Strip)
+       ========================================================= */
+    .hero {
+      padding-block: var(--space-fluid);
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(1.65rem, 4vw, 2.6rem);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+      margin-bottom: 1.25rem;
+    }
+
+    .category-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: var(--space-fluid);
+    }
+
+    .category-chip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .category-chip:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* =========================================================
+       4. Restaurant Listing Grid (CSS Grid + Fluid Units)
+       ========================================================= */
+    .section-heading {
+      font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+      margin-bottom: 1.25rem;
+    }
+
+    .restaurant-grid {
+      display: grid;
+      grid-template-columns: 1fr; /* Mobile-first single column */
+      gap: clamp(1rem, 2vw, 1.5rem);
+      padding-bottom: 3rem;
+    }
+
+    /* Container Query Context on Each Grid Item Wrapper */
+    .card-wrapper {
+      container-type: inline-size;
+      container-name: restaurant-card;
+    }
+
+    .restaurant-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .restaurant-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card-banner {
+      min-height: 145px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0.85rem;
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .banner-1 { background: linear-gradient(135deg, #d97706, #b45309); }
+    .banner-2 { background: linear-gradient(135deg, #dc2626, #991b1b); }
+    .banner-3 { background: linear-gradient(135deg, #059669, #065f46); }
+    .banner-4 { background: linear-gradient(135deg, #2563eb, #1e40af); }
+    .banner-5 { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+    .banner-6 { background: linear-gradient(135deg, #db2777, #9d174d); }
+
+    .badge-offer {
+      background: rgba(0, 0, 0, 0.65);
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.35rem;
+      font-size: 0.8rem;
+    }
+
+    .card-body {
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      gap: 0.75rem;
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .rating-pill {
+      background-color: #16a34a;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 0.35rem;
+      white-space: nowrap;
+    }
+
+    .cuisine-text {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .menu-preview {
+      font-size: 0.85rem;
+      background: #f3f4f6;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.4rem;
+      color: #374151;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 0.65rem;
+      border-top: 1px solid var(--border-light);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .btn-menu {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 0.35rem 0.75rem;
+      border-radius: 0.4rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .btn-menu:hover {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* =========================================================
+       5. Container Query: Horizontal Card Layout when Wide
+       ========================================================= */
+    @container restaurant-card (min-width: 460px) {
+      .restaurant-card {
+        flex-direction: row;
+      }
+      .card-banner {
+        width: 38%;
+        min-height: auto;
+      }
+    }
+
+    /* =========================================================
+       6. Mobile-First Media Queries (Tablet & Desktop)
+       ========================================================= */
+    /* Tablet Breakpoint (>= 600px) */
+    @media (min-width: 600px) {
+      .navbar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .brand-row {
+        gap: 1rem;
+      }
+
+      .restaurant-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Desktop Breakpoint (>= 992px) */
+    @media (min-width: 992px) {
+      .restaurant-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+      padding: 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Flexbox Responsive Header & Navigation -->
+  <header class="site-header">
+    <nav class="navbar container" aria-label="Primary Navigation">
+      <div class="brand-row">
+        <a href="#" class="brand-logo">QuickBite</a>
+        <span class="location-pill">Vijayawada, AP</span>
+      </div>
+
+      <ul class="nav-links">
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#restaurants">Restaurants</a></li>
+        <li><a href="#offers">Top Offers</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button type="button" class="btn-cart">Cart (2)</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Hero & Flexbox Food Category Filters -->
+    <section class="hero" id="categories">
+      <h1>Discover Top Restaurants Near You</h1>
+      <p>Freshly prepared meals delivered fast across your neighborhood.</p>
+
+      <div class="category-strip" role="group" aria-label="Food Categories">
+        <button type="button" class="category-chip">All Cuisines</button>
+        <button type="button" class="category-chip">Biryani &amp; Andhra</button>
+        <button type="button" class="category-chip">Wood-Fired Pizza</button>
+        <button type="button" class="category-chip">South Indian Tiffins</button>
+        <button type="button" class="category-chip">Burgers &amp; Wraps</button>
+        <button type="button" class="category-chip">Desserts &amp; Shakes</button>
+      </div>
+    </section>
+
+    <!-- CSS Grid Restaurant Discovery Section (6 Cards) -->
+    <section id="restaurants" aria-labelledby="restaurants-heading">
+      <h2 id="restaurants-heading" class="section-heading">Featured Restaurants (6)</h2>
+
+      <div class="restaurant-grid">
+        <!-- Card 1 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-1">
+              <span class="badge-offer">20% OFF up to ₹120</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">Amaravati Spice Kitchen</h3>
+                  <span class="rating-pill">4.6 ★</span>
+                </div>
+                <p class="cuisine-text">Andhra, Hyderabadi Biryani, Kebabs</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Vijayawada Special Boneless Biryani • ₹299</p>
+              <div class="card-footer">
+                <span>25–30 mins • ₹400 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-2">
+              <span class="badge-offer">FREE Delivery</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">Crust &amp; Ember Pizzeria</h3>
+                  <span class="rating-pill">4.5 ★</span>
+                </div>
+                <p class="cuisine-text">Neapolitan Pizza, Pasta, Garlic Bread</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Smoked Pepperoni Farmhouse • ₹349</p>
+              <div class="card-footer">
+                <span>30–35 mins • ₹550 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-3">
+              <span class="badge-offer">Flat ₹75 OFF</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">Udupi Tiffin House</h3>
+                  <span class="rating-pill">4.8 ★</span>
+                </div>
+                <p class="cuisine-text">South Indian, Dosa, Filter Coffee</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Ghee Karam Masala Dosa • ₹110</p>
+              <div class="card-footer">
+                <span>15–20 mins • ₹200 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-4">
+              <span class="badge-offer">Buy 1 Get 1</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">SmashStack Burgers</h3>
+                  <span class="rating-pill">4.4 ★</span>
+                </div>
+                <p class="cuisine-text">American, Crispy Burgers, Loaded Fries</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Double Cheese Jalapeño Burger • ₹229</p>
+              <div class="card-footer">
+                <span>20–25 mins • ₹450 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-5">
+              <span class="badge-offer">15% OFF Combo</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">Wok &amp; Bamboo Pan-Asian</h3>
+                  <span class="rating-pill">4.5 ★</span>
+                </div>
+                <p class="cuisine-text">Chinese, Thai Curries, Dim Sum</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Kung Pao Chicken &amp; Hakka Noodles • ₹279</p>
+              <div class="card-footer">
+                <span>30–40 mins • ₹500 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="card-wrapper">
+          <article class="restaurant-card">
+            <div class="card-banner banner-6">
+              <span class="badge-offer">₹100 OFF above ₹399</span>
+            </div>
+            <div class="card-body">
+              <div>
+                <div class="card-header-row">
+                  <h3 class="card-title">Velvet Crumb Creamery</h3>
+                  <span class="rating-pill">4.7 ★</span>
+                </div>
+                <p class="cuisine-text">Artisanal Gelato, Waffles, Thickshakes</p>
+              </div>
+              <p class="menu-preview"><strong>Popular:</strong> Belgian Dark Chocolate Waffle • ₹189</p>
+              <div class="card-footer">
+                <span>20–25 mins • ₹300 for two</span>
+                <button type="button" class="btn-menu">View Menu</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 QuickBite Food Delivery. Built with Mobile-First CSS Grid &amp; Flexbox.</p>
+  </footer>
+</body>
+</html>
